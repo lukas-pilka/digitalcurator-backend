@@ -4,7 +4,7 @@ import io
 from PIL import Image
 
 # Basics
-collectionLocalDirectory = 'collections/sbirka-kresby'
+collectionLocalDirectory = 'collections/sbirka-grafiky'
 
 # Connecting MongoDB
 
@@ -314,7 +314,7 @@ def getProperties(counter):
 
 # Calls functions
 
-maxTasks = 1200
+maxTasks = 1000
 
 getProperties(0)
 getLabels(0)
