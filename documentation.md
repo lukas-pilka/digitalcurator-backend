@@ -1,0 +1,13 @@
+ArtWork parameters
+- Title
+- Author
+- CreationDate
+- Dimensions
+- Curated Sets
+- Material
+- Technique
+- Artist signature
+- Inventory ID
+- Subcollection
+- Licence
+- Description

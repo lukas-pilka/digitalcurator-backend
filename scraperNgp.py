@@ -1,9 +1,8 @@
 from requests_html import HTMLSession
 import urllib.request
 session = HTMLSession()
-import csv
 
-def oneScrap(pageUrl, scrapedWebsite, outputNameCsv, outputName):
+def oneScrap(pageUrl, scrapedWebsite, outputName):
 
     ng = session.get(pageUrl)
 
@@ -19,145 +18,134 @@ def oneScrap(pageUrl, scrapedWebsite, outputNameCsv, outputName):
 
         ngItemName = ng.html.find('.nadpis-dielo', first=True)
         if not ngItemName == None:
-            ngItemName = ngItemName.text
-            artworkData['Name'] = ngItemName
+            artworkData['Title'] = ngItemName.text
         else:
-            ngItemName = 'nezadáno'
-            artworkData['Name'] = 'n/a'
-        print(ngItemName)
+            artworkData['Title'] = 'n/a'
 
         # SCRAPPING AUTHOR
 
         ngAuthor = ng.html.find('.inline', first=True)
         if not ngAuthor == None:
-            ngAuthor = ngAuthor.text
-            artworkData['Author'] = ngAuthor
+            artworkData['Author'] = ngAuthor.text
         else:
-            ngAuthor = 'nezadáno'
             artworkData['Author'] = 'n/a'
-        print(ngAuthor)
 
         # SCRAPPING CREATION DATE
 
         ngCreationDate = ng.html.find('tr', containing='datace:', first=True)
         if not ngCreationDate == None:
-            ngCreationDate = ''.join(list(ngCreationDate.text)[8:]) # CUT X LETTERS FROM BEGINNING
-            artworkData['CreationDate'] = ngCreationDate
+            artworkData['Creation Date'] = ''.join(list(ngCreationDate.text)[8:]) # CUT X LETTERS FROM BEGINNING
         else:
-            ngCreationDate = 'nezadáno'
-            artworkData['CreationDate'] = 'n/a'
-        print(ngCreationDate)
+            artworkData['Creation Date'] = 'n/a'
 
-        # SCRAPPING SIZES
+        # SCRAPPING DIMENSIONS
 
-        ngSizes = ng.html.find('tr', containing='rozměry:', first=True)
-        if not ngSizes == None:
-            ngSizes = ''.join(list(ngSizes.text)[9:]) # CUT X LETTERS FROM BEGINNING
+        ngDimensions = ng.html.find('tr', containing='rozměry:', first=True)
+        if not ngDimensions == None:
+            artworkData['Dimensions'] = ''.join(list(ngDimensions.text)[9:]) # CUT X LETTERS FROM BEGINNING
         else:
-            ngSizes = 'nezadáno'
-        print(ngSizes)
+            artworkData['Dimensions'] = 'n/a'
 
-        # SCRAPPING TOPIC UNITS
+        # SCRAPPING CURATED SETS
 
-        ngTopicUnits = ng.html.find('tr', containing='tematické celky:', first=True)
-        if not ngTopicUnits == None:
-            ngTopicUnits = ''.join(list(ngTopicUnits.text)[17:]) # CUT X LETTERS FROM BEGINNING
+        ngCuratedSets = ng.html.find('tr', containing='tematické celky:', first=True)
+        if not ngCuratedSets == None:
+            artworkData['Curated Sets'] = ''.join(list(ngCuratedSets.text)[17:]) # CUT X LETTERS FROM BEGINNING
         else:
-            ngTopicUnits = 'nezadáno'
-        print(ngTopicUnits)
+            artworkData['Curated Sets'] = 'n/a'
 
         # SCRAPPING MATERIAL
 
         ngMaterial = ng.html.find('tr', containing='materiál:', first=True)
         if not ngMaterial == None:
-            ngMaterial = ''.join(list(ngMaterial.text)[10:]) # CUT X LETTERS FROM BEGINNING
+            artworkData['Material'] = ''.join(list(ngMaterial.text)[10:]) # CUT X LETTERS FROM BEGINNING
         else:
-            ngMaterial = 'nezadáno'
-        print(ngMaterial)
+            artworkData['Material'] = 'n/a'
 
         # SCRAPPING TECHNIQUE
 
         ngTechnique = ng.html.find('tr', containing='technika:', first=True)
         if not ngTechnique == None:
-            ngTechnique = ''.join(list(ngTechnique.text)[10:]) # CUT X LETTERS FROM BEGINNING
+            artworkData['Technique'] = ''.join(list(ngTechnique.text)[10:]) # CUT X LETTERS FROM BEGINNING
         else:
-            ngTechnique = 'nezadáno'
-        print(ngTechnique)
+            artworkData['Technique'] = 'n/a'
 
-        # SCRAPPING MARKING
+        # SCRAPPING SIGNATURE
 
-        ngMarking = ng.html.find('tr', containing='značení:', first=True)
-        if not ngMarking == None:
-            ngMarking = ''.join(list(ngMarking.text)[9:]) # CUT X LETTERS FROM BEGINNING
+        ngSignature = ng.html.find('tr', containing='značení:', first=True)
+        if not ngSignature == None:
+            artworkData['Artist signature'] = ''.join(list(ngSignature.text)[9:]) # CUT X LETTERS FROM BEGINNING
         else:
-            ngMarking = 'nezadáno'
-        print(ngMarking)
+            artworkData['Artist signature'] = 'n/a'
 
-        # SCRAPPING INVENTORY NUMBER
+        # SCRAPPING INVENTORY ID
 
         ngInventoryId = ng.html.find('tr', containing='inventární číslo:', first=True)
         if not ngInventoryId == None:
             ngInventoryId = ''.join(list(ngInventoryId.text)[18:]) # CUT X LETTERS FROM BEGINNING
             ngInventoryId = ngInventoryId.replace(" ", "-")
+            artworkData['Inventory ID'] = ngInventoryId
         else:
-            ngInventoryId = 'nezadáno'
-        print(ngInventoryId)
+            artworkData['Inventory ID'] = 'n/a'
 
-        # SCRAPPING COLLECTION
+        # SCRAPPING SUBCOLLECTION
 
-        ngCollection = ng.html.find('tr', containing='sbírka:', first=True)
-        if not ngCollection == None:
-            ngCollection = ''.join(list(ngCollection.text)[8:]) # CUT X LETTERS FROM BEGINNING
+        ngSubcollection = ng.html.find('tr', containing='sbírka:', first=True)
+        if not ngSubcollection == None:
+            artworkData['Subcollection'] = ''.join(list(ngSubcollection.text)[8:]) # CUT X LETTERS FROM BEGINNING
         else:
-            ngCollection = 'nezadáno'
-        print(ngCollection)
+            artworkData['Subcollection'] = 'n/a'
 
         # SCRAPPING LICENCE
 
         ngLicence = ng.html.find('tr', containing='licence:', first=True)
         if not ngLicence == None:
-            ngLicence = ''.join(list(ngLicence.text)[9:]) # CUT X LETTERS FROM BEGINNING
+            artworkData['Licence'] = ''.join(list(ngLicence.text)[9:]) # CUT X LETTERS FROM BEGINNING
         else:
-            ngLicence = 'nezadáno'
-        print(ngLicence)
+            artworkData['Licence'] = 'n/a'
 
         # SCRAPPING DESCRIPTION
 
         ngDescription = ng.html.find('.description', first=True)
         if not ngDescription == None:
-            ngDescription = ngDescription.text
+            artworkData['Description'] = ngDescription.text
         else:
-            ngDescription = 'nezadáno'
-        print(ngDescription)
+            artworkData['Description'] = 'n/a'
+
+        # ADDING COLLECTION
+
+        artworkData['Collection'] = 'National Gallery in Prague'
+        collectionShortcut = 'NGP'
+
+        # SAVING URL
+
+        artworkData['Url'] = pageUrl
+
+        # ADDING KEY
+
+        ngKey = collectionShortcut + '-' + ngInventoryId
+        artworkData['Key'] = ngKey
 
         # SCRAPPING IMAGE
 
-        def dlJpg(iiUrl, filePath, ngInventoryId):
-            fullPath = 'collections/' + filePath + ngInventoryId + '.jpg'
-            urllib.request.urlretrieve(iiUrl, fullPath)
+        def dlJpg(iiUrl, filePath, ngKey):
+            imagePath = 'collections/' + filePath + ngKey + '.jpg'
+            artworkData['Image ID'] = ngKey + '.jpg'
+            urllib.request.urlretrieve(iiUrl, imagePath)
 
         iiUrl = ng.html.find('.img-dielo', first=True)
         if not iiUrl == None:
             iiUrl = iiUrl.attrs
-            iiUrl = iiUrl.get("src")  # TAKES VALUE OF SRC ATTRIBUTE IN DICTIONARY
+            iiUrl = iiUrl.get("src")  # TAKES VALUE OF SRC ATTRIBUTE
             iiUrl = scrapedWebsite + iiUrl
-            dlJpg(iiUrl, outputName + '/', ngInventoryId)
+            dlJpg(iiUrl, outputName + '/', ngKey)
 
         else:
-            iiUrl = 'bez obrázku'
-        print(iiUrl)
+            iiUrl = 'n/a'
 
-        # WRITING CSV ROW
-        csvHeader = ['Název díla, Autor, Vytvořeno, Rozměry, Tématické celky, Materiál, Značení, Inventární číslo, Sbírka, Licence, Popis']
-        itemRow = [ngItemName, ngAuthor, ngCreationDate, ngSizes, ngTopicUnits, ngMaterial, ngMarking, ngInventoryId, ngCollection, ngLicence, ngDescription]
+        # OUTPUT
 
-        with open(outputNameCsv, 'a') as csvFile:
-            writer = csv.writer(csvFile)
-            # writer.writerow(csvHeader)
-            writer.writerow(itemRow)
-
-        csvFile.close()
-
+        print(artworkData)
         return artworkData
 
     else:
