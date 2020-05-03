@@ -2,7 +2,7 @@ from requests_html import HTMLSession
 import urllib.request
 session = HTMLSession()
 
-def oneScrap(pageUrl, scrapedWebsite, outputName):
+def oneScrap(pageUrl, scrapedWebsite):
 
     ng = session.get(pageUrl)
 
@@ -129,7 +129,7 @@ def oneScrap(pageUrl, scrapedWebsite, outputName):
         # SCRAPPING IMAGE
 
         def dlJpg(iiUrl, filePath, ngKey):
-            imagePath = 'collections/' + filePath + ngKey + '.jpg'
+            imagePath = 'temp/' + filePath + ngKey + '.jpg'
             artworkData['Image ID'] = ngKey + '.jpg'
             urllib.request.urlretrieve(iiUrl, imagePath)
 
@@ -138,7 +138,7 @@ def oneScrap(pageUrl, scrapedWebsite, outputName):
             iiUrl = iiUrl.attrs
             iiUrl = iiUrl.get("src")  # TAKES VALUE OF SRC ATTRIBUTE
             iiUrl = scrapedWebsite + iiUrl
-            dlJpg(iiUrl, outputName + '/', ngKey)
+            dlJpg(iiUrl, '/', ngKey)
 
         else:
             iiUrl = 'n/a'

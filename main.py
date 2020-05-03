@@ -10,7 +10,7 @@ from scraperNgp import oneScrap as oneScrap
 
 # WRITING TO THE FIRESTORE
 
-cred = credentials.Certificate("../keys/digital-curator-firebase-adminsdk-h28c6-a4ddaed626.json")
+cred = credentials.Certificate("../keys/digital-curator-f02e06005c99.json")
 firebase_admin.initialize_app(cred, {
     'storageBucket': 'digital-curator.appspot.com'
 })
@@ -19,7 +19,7 @@ db = firestore.client()
 
 def writeArtwork(key, artwork):
     doc_ref = db.collection(u'artworks').document(key)
-    doc_ref.set(artwork)
+    doc_ref.set(artwork, merge=True)
 
 bucket = storage.bucket()
 
@@ -28,29 +28,13 @@ def saveImage(key, imagePath):
     outfile = imagePath
     blob.upload_from_filename(outfile)
 
-# GENERAL SETTINGS
-
-outputName = input('Jak pojmenujeme výstup: ')
-
-# CREATING DIRECTORY
-
-path = 'collections/' + outputName
-
-try:
-    os.mkdir(path)
-except OSError:
-    print("Creation of the directory %s failed" % path)
-else:
-    print("Successfully created the directory %s " % path)
-
-
 # NATIONAL GALLERY IN PRAGUE
 
-subcollectionId = input('Vložte signaturu sbírky (Př: CZE:NG.Vp_): ') or 'CZE:NG.Vp_'
-startUrlNumber = int(input('Vložte číslo prvního díla ke stažení: ') or 10)
-endUrlNumber = int(input('Vložte číslo posledního díla ke stažení: ') or 20)
+subcollectionId = input('Insert subcollection signature (Ex: CZE:NG.O_): ') or 'CZE:NG.O_'
+startUrlNumber = int(input('Insert first ID for scrapping: ') or 10)
+endUrlNumber = int(input('Insert last ID for scrapping: ') or 20)
 
-def scrapNgp(subcollectionId, startUrlNumber, endUrlNumber, outputName):
+def scrapNgp(subcollectionId, startUrlNumber, endUrlNumber):
 
     # SETTING INPUTS
 
@@ -63,15 +47,16 @@ def scrapNgp(subcollectionId, startUrlNumber, endUrlNumber, outputName):
         startUrlNumber += 1
         pageUrl = str(collectionUrl) + str(startUrlNumber)
         print('Searching at: ' + str(pageUrl)+ ' ...')
-        artwork = oneScrap(pageUrl, webUrl, outputName)
+        artwork = oneScrap(pageUrl, webUrl)
 
         # IF CONTAINS ARTWORK CALLS FUNCTIONS FOR WRITING TO THE FIRESTORE AND SAVING IMAGE TO THE STORAGE
 
         if not artwork == None:
             writeArtwork(artwork['Key'], artwork)
-            saveImage(artwork['Key'], path + '/' + artwork['Image ID'])
+            saveImage('artworks/' + artwork['Key'], 'temp/' + artwork['Image ID'])
+            os.remove('temp/' + artwork['Image ID'])
 
-scrapNgp(subcollectionId, startUrlNumber, endUrlNumber, outputName)
+scrapNgp(subcollectionId, startUrlNumber, endUrlNumber)
 
 # WRITING RESUME
 
@@ -80,7 +65,7 @@ artworksCount = 0
 for artwork in artworks:
     artworksCount += 1
 
-print('Scrapping successful! Digital Curator database now contains ' + str(artworksCount) + ' artworks.')
+print('[Curator]: Scrapping successful! Digital Curator database now contains ' + str(artworksCount) + ' artworks.')
 
 
 
