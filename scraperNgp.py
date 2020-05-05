@@ -2,7 +2,7 @@ from requests_html import HTMLSession
 import urllib.request
 session = HTMLSession()
 
-def oneScrap(pageUrl, scrapedWebsite):
+def ngpScrap(pageUrl, scrapedWebsite):
 
     ng = session.get(pageUrl)
 

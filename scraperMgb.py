@@ -150,14 +150,11 @@ def mgbScrap(pageUrl, scrapedWebsite):
             urllib.request.urlretrieve(iiUrl, imagePath)
 
         iiUrl = ng.html.find('.img-dielo', first=True)
-        if not iiUrl == None:
+        if iiUrl != None and 'no-image' not in str(iiUrl):  # if image exists and its name doesn't contain 'no-image'
             iiUrl = iiUrl.attrs
-            iiUrl = iiUrl.get("src")  # TAKES VALUE OF SRC ATTRIBUTE
+            iiUrl = iiUrl.get("src")  # takes value of src attribute
             iiUrl = scrapedWebsite + iiUrl
             dlJpg(iiUrl, '/', Key)
-
-        else:
-            iiUrl = 'n/a'
 
         # OUTPUT
 
@@ -166,5 +163,3 @@ def mgbScrap(pageUrl, scrapedWebsite):
 
     else:
         print('Nothing here')
-
-mgbScrap('http://sbirky.moravska-galerie.cz/dielo/CZE:MG.A_2', 'http://sbirky.moravska-galerie.cz')

@@ -58,4 +58,3 @@ for artwork in artworks: # Checking Firebase items
 
 
 
-

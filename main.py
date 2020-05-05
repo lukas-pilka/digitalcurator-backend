@@ -5,7 +5,9 @@ import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
 from firebase_admin import storage
-from scraperNgp import oneScrap as oneScrap
+from scraperNgp import ngpScrap
+from scraperMgb import mgbScrap
+from scraperPcg import pcgScrap
 
 
 # WRITING TO THE FIRESTORE
@@ -30,14 +32,13 @@ def saveImage(key, imagePath):
 
 # NATIONAL GALLERY IN PRAGUE
 
-subcollectionId = input('Insert subcollection signature (Ex: CZE:NG.O_): ') or 'CZE:NG.O_'
-startUrlNumber = int(input('Insert first ID for scrapping: ') or 10)
-endUrlNumber = int(input('Insert last ID for scrapping: ') or 20)
-
-def scrapNgp(subcollectionId, startUrlNumber, endUrlNumber):
+def scrapNgp():
 
     # SETTING INPUTS
 
+    subcollectionId = input('Insert subcollection signature (Ex: CZE:NG.O_): ') or 'CZE:NG.O_'
+    startUrlNumber = int(input('Insert first ID for scrapping: ') or 10)
+    endUrlNumber = int(input('Insert last ID for scrapping: ') or 20)
     webUrl = 'http://sbirky.ngprague.cz'
     collectionUrl = webUrl + '/dielo/' + subcollectionId
 
@@ -47,7 +48,7 @@ def scrapNgp(subcollectionId, startUrlNumber, endUrlNumber):
         startUrlNumber += 1
         pageUrl = str(collectionUrl) + str(startUrlNumber)
         print('Searching at: ' + str(pageUrl)+ ' ...')
-        artwork = oneScrap(pageUrl, webUrl)
+        artwork = ngpScrap(pageUrl, webUrl)
 
         # IF CONTAINS ARTWORK CALLS FUNCTIONS FOR WRITING TO THE FIRESTORE AND SAVING IMAGE TO THE STORAGE
 
@@ -56,7 +57,64 @@ def scrapNgp(subcollectionId, startUrlNumber, endUrlNumber):
             saveImage('artworks/' + artwork['Key'], 'temp/' + artwork['Image ID'])
             os.remove('temp/' + artwork['Image ID'])
 
-scrapNgp(subcollectionId, startUrlNumber, endUrlNumber)
+
+# MORAVIAN GALLERY IN BRNO
+
+def scrapMgb():
+
+    # SETTING INPUTS
+    
+    subcollectionId = input('Insert subcollection signature (Ex: CZE:MG.A_): ') or 'CZE:MG.A_'
+    startUrlNumber = int(input('Insert first ID for scrapping: ') or 1)
+    endUrlNumber = int(input('Insert last ID for scrapping: ') or 20)
+    webUrl = 'http://sbirky.moravska-galerie.cz'
+    collectionUrl = webUrl + '/dielo/' + subcollectionId
+
+    # STARTING LOOP
+
+    while startUrlNumber < endUrlNumber:
+        startUrlNumber += 1
+        pageUrl = str(collectionUrl) + str(startUrlNumber)
+        print('Searching at: ' + str(pageUrl)+ ' ...')
+        artwork = mgbScrap(pageUrl, webUrl)
+
+        # IF ARTWORK CONTAINS IMAGE IT CALLS FUNCTIONS FOR WRITING TO THE FIRESTORE AND SAVING IMAGE TO THE STORAGE
+
+        if not artwork == None and 'Image ID' in artwork:
+            writeArtwork(artwork['Key'], artwork)
+            saveImage('artworks/' + artwork['Key'], 'temp/' + artwork['Image ID'])
+            os.remove('temp/' + artwork['Image ID'])
+
+# PRAGUE CITY GALLERY
+
+def scrapPcg():
+
+    # SETTING INPUTS
+
+    subcollectionId = input('Insert subcollection signature (Ex: CZK:US.K-): ') or 'CZK:US.K-'
+    startUrlNumber = int(input('Insert first ID for scrapping: ') or 1)
+    endUrlNumber = int(input('Insert last ID for scrapping: ') or 20)
+    webUrl = 'http://ghmp.cz'
+    collectionUrl = webUrl + '/online-sbirky/detail/' + subcollectionId
+
+    # STARTING LOOP
+
+    while startUrlNumber < endUrlNumber:
+        startUrlNumber += 1
+        pageUrl = str(collectionUrl) + str(startUrlNumber)
+        print('Searching at: ' + str(pageUrl)+ ' ...')
+        artwork = pcgScrap(pageUrl, webUrl)
+
+        # IF ARTWORK CONTAINS IMAGE IT CALLS FUNCTIONS FOR WRITING TO THE FIRESTORE AND SAVING IMAGE TO THE STORAGE
+
+        if not artwork == None and 'Image ID' in artwork:
+            writeArtwork(artwork['Key'], artwork)
+            saveImage('artworks/' + artwork['Key'], 'temp/' + artwork['Image ID'])
+            os.remove('temp/' + artwork['Image ID'])
+
+
+scrapPcg()
+
 
 # WRITING RESUME
 

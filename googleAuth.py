@@ -6,7 +6,7 @@ from google.cloud import storage
 def implicit():
     # from google.cloud import storage
 
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/lukaspilka/digitalcurator-247310-b5388c78514e.json"
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "../keys/digital-curator-f02e06005c99.json"
 
     # If you don't specify credentials when constructing the client, the
     # client library will look for credentials in the environment.
