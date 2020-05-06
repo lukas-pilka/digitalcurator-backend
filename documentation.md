@@ -8,6 +8,16 @@ CZK:US.F- | Fotografie 633 | 710
 CZK:US.G- | Grafika 913    | 4910
 
 
+**PCG Collections**
+
+ID | OFFICIAL COUNT | HIGHEST FOUND
+--- | --- | ---
+CZK:US.K- | Kresba 2 669   | 3 038
+CZK:US.M- | Malba 1 920    | 3 810
+CZK:US.F- | Fotografie 633 | 710
+CZK:US.G- | Grafika 913    | 4910
+
+
 **MGB Collections**
 
 ID | COUNT
@@ -49,6 +59,7 @@ CZE:NG.Vp_ | 13 644
 - ML Labels 
 - Licence
 - Material 
+- Style
 - Subcollection 
 - Technique
 - Title 

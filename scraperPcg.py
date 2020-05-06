@@ -83,15 +83,14 @@ def pcgScrap(pageUrl, scrapedWebsite):
         else:
             artworkData['Inventory ID'] = 'n/a'
 
-            # SCRAPPING SUBCOLLECTION
+        # SCRAPPING SUBCOLLECTION
 
         subcollection = ng.html.find('#page-content', first=True)
         if not subcollection == None:
             subcollection = subcollection.text
             subcollectionStart = subcollection.find('sbírka:') + 8
             subcollectionEnd = subcollection.find('\ndatace:')
-            artworkData['Subcollection'] = ''.join(
-                list(technique)[subcollectionStart:subcollectionEnd])  # cut all letters before xStart and after xEnd
+            artworkData['Subcollection'] = ''.join(list(technique)[subcollectionStart:subcollectionEnd])  # cut all letters before xStart and after xEnd
         else:
             artworkData['Subcollection'] = 'n/a'
 

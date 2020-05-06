@@ -14,6 +14,9 @@ db = firestore.client()
 artworksNgp = db.collection(u'artworks').where('Collection', '==', 'National Gallery in Prague').stream()
 artworksMgb = db.collection(u'artworks').where('Collection', '==', 'Moravian Gallery in Brno').stream()
 artworksPcg = db.collection(u'artworks').where('Collection', '==', 'Prague City Gallery').stream()
+artworksBmv = db.collection(u'artworks').where('Collection', '==', 'Belvedere Museum Vienna').stream()
+
+
 bucket = storage.bucket()
 
 print("Bucket {} connected.".format(bucket.name))
@@ -44,5 +47,6 @@ def filesCounter():
 print('National Gallery in Prague' + str(dbCounter(artworksNgp)))
 print('Moravian Gallery in Brno' + str(dbCounter(artworksMgb)))
 print('Prague City Gallery' + str(dbCounter(artworksPcg)))
+print('Belvedere Museum Vienna' + str(dbCounter(artworksBmv)))
 
 print("Storage contains {} images.".format(filesCounter()))

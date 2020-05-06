@@ -38,6 +38,7 @@ def ngpScrap(pageUrl, scrapedWebsite):
         else:
             artworkData['Creation Date'] = 'n/a'
 
+
         # SCRAPPING DIMENSIONS
 
         ngDimensions = ng.html.find('tr', containing='rozměry:', first=True)

@@ -8,6 +8,7 @@ from firebase_admin import storage
 from scraperNgp import ngpScrap
 from scraperMgb import mgbScrap
 from scraperPcg import pcgScrap
+from scraperBmv import bmvScrap
 
 
 # WRITING TO THE FIRESTORE
@@ -112,8 +113,34 @@ def scrapPcg():
             saveImage('artworks/' + artwork['Key'], 'temp/' + artwork['Image ID'])
             os.remove('temp/' + artwork['Image ID'])
 
+# PRAGUE CITY GALLERY
 
-scrapPcg()
+def scrapBmv():
+
+    # SETTING INPUTS
+
+    startUrlNumber = int(input('Insert first ID for scrapping: ') or 1)
+    endUrlNumber = int(input('Insert last ID for scrapping: ') or 20)
+    webUrl = 'https://sammlung.belvedere.at'
+    collectionUrl = webUrl + '/objects/'
+
+    # STARTING LOOP
+
+    while startUrlNumber < endUrlNumber:
+        startUrlNumber += 1
+        pageUrl = str(collectionUrl) + str(startUrlNumber)
+        print('Searching at: ' + str(pageUrl) + ' ...')
+        artwork = bmvScrap(pageUrl, webUrl)
+
+        # IF ARTWORK CONTAINS IMAGE IT CALLS FUNCTIONS FOR WRITING TO THE FIRESTORE AND SAVING IMAGE TO THE STORAGE
+
+        if not artwork == None and 'Image ID' in artwork:
+            writeArtwork(artwork['Key'], artwork)
+            saveImage('artworks/' + artwork['Key'], 'temp/' + artwork['Image ID'])
+            os.remove('temp/' + artwork['Image ID'])
+
+
+scrapBmv()
 
 
 # WRITING RESUME

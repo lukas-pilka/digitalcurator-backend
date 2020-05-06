@@ -1,75 +1,147 @@
 from requests_html import HTMLSession
 import urllib.request
 session = HTMLSession()
-import csv
-import os
 
-# SETTING INPUTS
 
-scrapedWebsite = 'https://digital.belvedere.at/objects/'
-startUrlNumber = int(input('Vložte číslo prvního díla ke stažení: '))
-endUrlNumber = int(input('Vložte číslo posledního díla ke stažení: '))
-outputName = input('Jak pojmenujeme výstup: ')
+def bmvScrap(pageUrl, scrapedWebsite):
 
-# DOWNLOAD IMAGE
+        scraping = session.get(pageUrl)
 
-path = 'collections/' + outputName
+        # IF FINDS ITEM NAME, IT CONTINUES
 
-try:
-    os.mkdir(path)
-except OSError:
-    print ("Creation of the directory %s failed" % path)
-else:
-    print ("Successfully created the directory %s " % path)
+        checkArtworkPage = scraping.html.find('.detail-item-details', first=True)  # Search for element with class and if there is, it continues
 
-# DOWNLOAD IMAGE
+        if not checkArtworkPage == None:
 
-def dlJpg(iiUrl, filePath, InventoryId):
-    fullPath = 'collections/' + str(filePath) + str(InventoryId) + '.jpg'
-    urllib.request.urlretrieve(iiUrl, fullPath)
+            artworkData = {}
 
-# STARTING CYCLE
+            # SCRAPPING ITEM NAME
 
-def scraping(startUrlNumber, endUrlNumber):
+            itemName = scraping.html.find('h1', first=True)
+            if not itemName == None:
+                artworkData['Title'] = itemName.text
+            else:
+                artworkData['Title'] = 'n/a'
 
-    while startUrlNumber < endUrlNumber:
-        startUrlNumber += 1
-        scrapedUrl = scrapedWebsite + str(startUrlNumber)
-        scraping = session.get(scrapedUrl)
+            # SCRAPPING AUTHOR
 
-        # IF FINDS ITEML NAME, IT CONTINUES
+            author = scraping.html.find('.peopleField .detailFieldValue a', first=True)
+            if not author == None:
+                artworkData['Author'] = author.text
+            else:
+                artworkData['Author'] = 'n/a'
 
-        ItemName = scraping.html.find('.detail-item-details', first=True)
+            # SCRAPPING CREATION DATE
 
-        if not ItemName == None:
+            creationDate = scraping.html.find('.displayDateField .detailFieldValue', first=True)
+            if not creationDate == None:
+                artworkData['Creation Date'] = creationDate.text
+            else:
+                artworkData['Creation Date'] = 'n/a'
 
-            # print(scrapedUrl)
+            # ACQUISITION DATE
 
-            # SCRAPING SELECTION
+            acquisitionDate = scraping.html.find('.paperSupportField .detailFieldValue', first=True)
+            if not acquisitionDate == None:
+                artworkData['Acquisition Date'] = acquisitionDate.text
+            else:
+                artworkData['Acquisition Date'] = 'n/a'
 
-            # SCRAPPING INVENTORY NUMBER
+            # SCRAPPING TECHNIQUE
+
+            subcollection = scraping.html.find('.nameField .detailFieldValue a', first=True)
+            if not subcollection == None:
+                artworkData['Subcollection'] = subcollection.text
+            else:
+                artworkData['Subcollection'] = 'n/a'
+
+            technique = scraping.html.find('.nameField .detailFieldValue a', first=True)
+            if not technique == None:
+                artworkData['Technique'] = technique.text
+            else:
+                artworkData['Technique'] = 'n/a'
+
+            # SCRAPPING MATERIAL
+
+            material = scraping.html.find('.mediumField .detailFieldValue', first=True)
+            if not material == None:
+                artworkData['Material'] = material.text
+            else:
+                artworkData['Material'] = 'n/a'
+
+            # SCRAPPING STYLE
+
+            style = scraping.html.find('.periodField .detailFieldValue', first=True)
+            if not style == None:
+                artworkData['Style'] = style.text
+            else:
+                artworkData['Style'] = 'n/a'
+
+            # SCRAPPING SIGNATURE
+
+            signature = scraping.html.find('.signedField .detailFieldValue', first=True)
+            if not signature == None:
+                artworkData['Artist signature'] = signature.text
+            else:
+                artworkData['Artist signature'] = 'n/a'
+
+            # SCRAPPING DIMENSIONS
+
+            dimensions = scraping.html.find('.dimensionsField .detailFieldValue', first=True)
+            if not dimensions == None:
+                artworkData['Dimensions'] = dimensions.text
+            else:
+                artworkData['Dimensions'] = 'n/a'
+
+            # SCRAPPING INVENTORY ID
 
             inventoryId = scraping.html.find('.invnoField .detailFieldValue', first=True)
             if not inventoryId == None:
-                inventoryId = inventoryId.text
+                artworkData['Inventory ID'] = inventoryId.text
+                artworkData['Inventory ID'] = artworkData['Inventory ID'].replace("/", "-")
             else:
-                inventoryId = 'not set'
+                artworkData['Inventory ID'] = 'n/a'
+
+            # ADDING COLLECTION
+
+            artworkData['Collection'] = 'Belvedere Museum Vienna'
+            collectionShortcut = 'BMV'
+
+            # SAVING URL
+
+            artworkData['Url'] = pageUrl
+
+            # ADDING LICENCE
+
+            artworkData['Licence'] = 'iiif'
+
+            # ADDING KEY
+
+            key = collectionShortcut + '-' + artworkData['Inventory ID']
+            artworkData['Key'] = key
 
             # SCRAPPING IMAGE
 
+            def dlJpg(iiUrl, filePath, ngKey):
+                imagePath = 'temp' + filePath + ngKey + '.jpg'
+                artworkData['Image ID'] = ngKey + '.jpg'
+                urllib.request.urlretrieve(iiUrl, imagePath)
+
             iiUrl = scraping.html.find('.width-img-wrap img', first=True)
-            if not iiUrl == None:
+            if iiUrl != None and 'no-image' not in str(
+                    iiUrl):  # if image exists and its name doesn't contain 'no-image'
                 iiUrl = iiUrl.attrs
-                iiUrl = iiUrl.get("src")  # TAKES VALUE OF SRC ATTRIBUTE IN DICTIONARY
-                iiUrl = 'https://digital.belvedere.at' + str(iiUrl)
-                dlJpg(iiUrl, outputName + '/', inventoryId)
-                print('Downloading item ' + inventoryId + ' from ' + iiUrl)
-            else:
-                print('no image')
+                iiUrl = iiUrl.get("src")  # takes value of src attribute
+                iiUrlCut = iiUrl.find('/preview') # finds place where to cut url
+                iiUrl = ''.join(list(iiUrl)[:iiUrlCut]) + '/full' # cuts url and adds ending
+                iiUrl = scrapedWebsite + iiUrl
+                print(iiUrl)
+                dlJpg(iiUrl, '/', key)
+
+            # OUTPUT
+
+            print(artworkData)
+            return artworkData
 
         else:
-            print('Nothing at: ' + str(startUrlNumber))
-
-# CALL SCRAPING FUNCTION WITH START AND ENDING URL NUMBER
-
-scraping(startUrlNumber, endUrlNumber)
+            print('Nothing here')

@@ -1,6 +1,20 @@
+import os
 import firebase_admin
-from firebase_admin import firestore
 from firebase_admin import credentials
+from firebase_admin import firestore
+from firebase_admin import storage
+
+# ACCESSING TO THE FIRESTORE
+
+cred = credentials.Certificate("../keys/digital-curator-f02e06005c99.json")
+firebase_admin.initialize_app(cred)
+
+db = firestore.client()
+artworksDb = db.collection(u'artworks').where('Collection', '==', 'Prague City Gallery').stream()
+
+def writeArtwork(key, artwork):
+    doc_ref = db.collection(u'artworks').document(key)
+    doc_ref.set(artwork)
 
 # ML LABELS API
 
@@ -28,33 +42,25 @@ def detect_labels_uri(uri):
     return labelsDict
 
 
-# ACCESSING TO THE FIRESTORE
-
-cred = credentials.Certificate("../keys/digital-curator-f02e06005c99.json")
-firebase_admin.initialize_app(cred)
-
-db = firestore.client()
-artworks = db.collection(u'artworks').stream()
-
-def writeArtwork(key, artwork):
-    doc_ref = db.collection(u'artworks').document(key)
-    doc_ref.set(artwork)
-
 # CALLING CLOUD VISION API
 
-for artwork in artworks: # Checking Firebase items
-    artworkDict = artwork.to_dict() # Converts Firestore document to dictionary
-    imageUrl = 'https://storage.googleapis.com/digital-curator.appspot.com/artworks/' + artworkDict['Key'] # Generates Image Url
-    print('\n[Curator]: I received: ' + artworkDict['Key'] + ': ' + artworkDict['Title'] +', ' + imageUrl)
-    if not 'ML Labels' in artworkDict:
-        try:
-            artworkDict['ML Labels'] = detect_labels_uri(imageUrl) # Calling AI Labeling function and updating dictionary
-            writeArtwork(artworkDict['Key'], artworkDict) # Writing updated dictionary to firestore
-            print('[Curator]: Nice artwork! I think that it is: ' + str(artworkDict['ML Labels']))
-        except:
-            print('[Curator]: I can not find image on this url.')
-    else:
-        print('[Curator]: ML Labels already exists. I keep the original labels.')
+def addLabels(artworks):
+    for artwork in artworks: # Checking Firebase items
+        artworkDict = artwork.to_dict() # Converts Firestore document to dictionary
+        imageUrl = 'https://storage.googleapis.com/digital-curator.appspot.com/artworks/' + artworkDict['Key'] # Generates Image Url
+        print('\n[Curator]: I received: ' + artworkDict['Key'] + ': ' + artworkDict['Title'] +', ' + imageUrl)
+        if not 'ML Labels' in artworkDict:
+            try:
+                artworkDict['ML Labels'] = detect_labels_uri(imageUrl) # Calling AI Labeling function and updating dictionary
+                writeArtwork(artworkDict['Key'], artworkDict) # Writing updated dictionary to firestore
+                print('[Curator]: Nice artwork! I think that it is: ' + str(artworkDict['ML Labels']))
+            except:
+                print('[Curator]: I can not find image on this url.')
+        else:
+            print('[Curator]: ML Labels already exists. I keep the original labels.')
+
+addLabels(artworksDb)
+
 
 
 
