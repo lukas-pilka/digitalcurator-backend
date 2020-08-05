@@ -11,7 +11,7 @@ from scraperPcg import pcgScrap
 from scraperBmv import bmvScrap
 
 
-# WRITING TO THE FIRESTORE
+# WRITES TO THE FIRESTORE
 
 cred = credentials.Certificate("../keys/digital-curator-f02e06005c99.json")
 firebase_admin.initialize_app(cred, {
